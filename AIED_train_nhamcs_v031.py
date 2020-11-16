@@ -41,7 +41,10 @@ batch_size = 1024
 device = 'cuda'
 parallel = False
 
-checkpoint_file = './checkpoint_emb/Revision_dim'
+checkpoint_file = './checkpoint_emb/aRevision_dc'
+alpha=1
+beta=1
+gamma=0.1
 
 if pi=='1':
     use_pi =True
@@ -1190,6 +1193,8 @@ def train_NHAMCS_cls_dim_val(DS_model,
                      trainED=True,
                      task=None,
                      use_pi=False):
+    global alpha, beta
+    
     DS_model.to(device)
     cls_model.to(device)
     baseBERT.to(device)
@@ -1276,7 +1281,7 @@ def train_NHAMCS_cls_dim_val(DS_model,
             loss_tri = criterion(cls_tri,trg_triage)
             loss_poor = criterion(cls_poor,trg_poor7)
             
-            loss = loss_poor + loss_icu + loss_die + loss_dim
+            loss = loss_poor + loss_icu + loss_die + loss_dim/(alpha+beta+1e-6) 
 
             if str(loss.item())=='nan':
                 # debugnan.append([h.cpu(),hm.cpu(),h_emb.cpu(),h_emb_mean.cpu(),h_emb_emb.cpu()])
@@ -1477,9 +1482,9 @@ pickle_Model = AIED_bert.pickle_Model(config=config,
 
 dim_model = AIED_bert.DIM(config=config,
                           device=device,
-                          alpha=1,
-                          beta=0,
-                          gamma=0.1)
+                          alpha=alpha,
+                          beta=beta,
+                          gamma=gamma)
 
 expand_model = AIED_bert.ewed_expand_Model(config=config)
 
@@ -2023,8 +2028,8 @@ elif task=='nhamcs_cls':
     all_datas = AIED_dataloader.load_datas()
     datas_train = all_datas['datas_train']
     dm_normalization_np = all_datas['dm_normalization_np']   
-    datas_test = all_datas['datas_val']
-    datas_val = all_datas['datas_test']  
+    datas_test = all_datas['datas_test']
+    datas_val = all_datas['datas_val']  
     datas_all = all_datas['datas']
 
     structure_mean = dm_normalization_np[0]
@@ -2444,8 +2449,8 @@ elif task=='test_nhamcs_cls':
     all_datas = AIED_dataloader.load_datas()
     datas_train = all_datas['datas_train']
     dm_normalization_np = all_datas['dm_normalization_np']   
-    datas_test = all_datas['datas_val']
-    datas_val = all_datas['datas_test']  
+    datas_test = all_datas['datas_test']
+    datas_val = all_datas['datas_val']  
     datas_all = all_datas['datas']
     
     # datas_val = datas_val[datas_val['AGE']>=18]
@@ -2462,7 +2467,7 @@ elif task=='test_nhamcs_cls':
                          batch_size=128,
                          collate_fn=AIED_dataloader.collate_fn)
     import AIED_utils    
-    
+    # checkpoint_file = './checkpoint_emb/Revision_dc'    
     ki = 'BEST'
     
     try: 
@@ -2511,8 +2516,8 @@ elif task=='nhamcs':
     all_datas = AIED_dataloader.load_datas()
     datas_train = all_datas['datas_train']
     dm_normalization_np = all_datas['dm_normalization_np']   
-    datas_test = all_datas['datas_val']
-    datas_val = all_datas['datas_test']    
+    datas_test = all_datas['datas_test']
+    datas_val = all_datas['datas_val']   
     datas_all = all_datas['datas']
 
     structure_mean = dm_normalization_np[0]
@@ -2552,8 +2557,8 @@ elif task == 'make_pickle':
     all_datas = AIED_dataloader.load_datas()
     datas_train = all_datas['datas_train']
     dm_normalization_np = all_datas['dm_normalization_np']   
-    datas_test = all_datas['datas_val']
-    datas_val = all_datas['datas_test']    
+    datas_test = all_datas['datas_test']
+    datas_val = all_datas['datas_val']    
     datas_all = all_datas['datas']
     
     data15_triage_val_sample = datas_train
@@ -2585,8 +2590,8 @@ elif task == 'make_pickle_val':
     all_datas = AIED_dataloader.load_datas()
     datas_train = all_datas['datas_train']
     dm_normalization_np = all_datas['dm_normalization_np']   
-    datas_test = all_datas['datas_val']
-    datas_val = all_datas['datas_test']    
+    datas_test = all_datas['datas_test']
+    datas_val = all_datas['datas_val']     
     datas_all = all_datas['datas']
     
     data15_triage_val_sample = datas_val
@@ -2742,8 +2747,8 @@ elif task=='count_nhamcs_cls':
     all_datas = AIED_dataloader.load_datas()
     datas_train = all_datas['datas_train']
     dm_normalization_np = all_datas['dm_normalization_np']   
-    datas_test = all_datas['datas_val']
-    datas_val = all_datas['datas_test']  
+    datas_test = all_datas['datas_test']
+    datas_val = all_datas['datas_val']  
     datas_all = all_datas['datas']
     
     # datas_val = datas_val[datas_val['AGE']>=18]
@@ -2824,8 +2829,8 @@ elif task=='pickle_nhamcs_cls_val':
     all_datas = AIED_dataloader.load_datas()
     datas_train = all_datas['datas_train']
     dm_normalization_np = all_datas['dm_normalization_np']   
-    datas_test = all_datas['datas_val']
-    datas_val = all_datas['datas_test']  
+    datas_test = all_datas['datas_test']
+    datas_val = all_datas['datas_val']  
     datas_all = all_datas['datas']
     
     # datas_val = datas_val[datas_val['AGE']>=18]
@@ -2936,8 +2941,8 @@ elif task=='pickle_nhamcs_cls_dim_val':
     all_datas = AIED_dataloader.load_datas()
     datas_train = all_datas['datas_train']
     dm_normalization_np = all_datas['dm_normalization_np']   
-    datas_test = all_datas['datas_val']
-    datas_val = all_datas['datas_test']  
+    datas_test = all_datas['datas_test']
+    datas_val = all_datas['datas_val']   
     datas_all = all_datas['datas']
     
     # datas_val = datas_val[datas_val['AGE']>=18]

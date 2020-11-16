@@ -18,7 +18,7 @@ import pickle
 import matplotlib.pyplot as plt
 
 
-pklfile = 'ROC_results.pickle'
+pklfile = 'ROC_results_new.pickle'
 
 with open(pklfile,'rb') as f:
     results = pickle.load(f)  
@@ -30,7 +30,7 @@ print('** complete load pickle **')
     #          'pred':pred}
 
 def convert_keys(k):
-    if k == 'ub':
+    if k == 'Sub':
         return 'Ours'
     elif k == 'dc':
         return 'Ours, small'
@@ -40,7 +40,13 @@ def convert_keys(k):
         return 'Only SimCLR, small'
     elif k == 'none':
         return 'Without pretrained, small'
-
+    
+    elif k == 'Sdim':
+        return 'Only DIM'
+    elif k == 'Sclr':
+        return 'Only SimCLR'
+    elif k == 'Snone':
+        return 'Without pretrained'
 
 def plot_roc_nhamcs2(results,ep=0):
     from sklearn.metrics import roc_curve, auc
@@ -88,7 +94,7 @@ def plot_roc_nhamcs2(results,ep=0):
         roc_auc2 = auc(fpr,tpr)
         
         s = convert_keys(k)
-        label_auc2 = str(s)+', AUROC='+str(round(roc_auc2,3))        
+        label_auc2 = str(s)+f', AUROC={round(roc_auc2,3):.3f}'        
         ax.plot(fpr,tpr,label=label_auc2)
         
     ax.plot(ROC_threshold,ROC_threshold,'-.',label='random')
@@ -100,4 +106,4 @@ def plot_roc_nhamcs2(results,ep=0):
     plt.xlim(0.,1.)
     plt.ylim(0.,1.)
     plt.legend()
-    plt.savefig('./pic_ROC/AUCs_nhamcs.png')
+    plt.savefig('./pic_ROC/AUCs_nhamcs_NEW.png')
