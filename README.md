@@ -7,6 +7,7 @@ How to use our code:
 pip uninstall transformers   (skip this line if you didnot install transformers before)
 
 cd transformers-master
+
 pip install .
 
 cd. 
